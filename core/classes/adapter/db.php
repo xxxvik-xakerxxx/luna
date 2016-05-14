@@ -9,14 +9,14 @@ class db{
 	private $sql = null;
 	private $pfx = '';
 	public $debug = true;
-	
+
 	function connect($config){
-		$this->connect_id = mysql_connect($config['host'], $config['user'], $config['password']);
+		$this->connect_id =  new mysqli($config['host'], $config['user'], $config['password']);
 		if (!$this->connect_id) {
 			$this->error();
 			return false;
 		}
-		if (mysql_select_db($config['db'], $this->connect_id)) {
+		if (mysqli_select_db($config['db'], $this->connect_id)) {
 			if (!isset($config['charset'])) {
 				$config['charset'] = 'utf8';
 			}
@@ -37,27 +37,27 @@ class db{
 	}
 	function query($sql) {
 		$this->sql = preg_replace('@#__@u', $this->pfx, $sql);
-		$this->resource_id = mysql_query($this->sql, $this->connect_id);
+		$this->resource_id = mysqli_query($this->sql, $this->connect_id);
 		if ($this->debug and !$this->resource_id) {
 			$this->error();
 		}
 		return $this;
 	}
 	function row($field = false){
-		if ($this->resource_id and $row = mysql_fetch_object($this->resource_id)) {
+		if ($this->resource_id and $row = mysqli_fetch_object($this->resource_id)) {
 			return $field ? $row[$field] : $row;
 		}
 		return null;
 	}
 	function item($table, $where = '1', $fields = '*', $field = false){
 		$item = $this->query('select '.$fields.' from '.$table.' where '.$where)->row($field);
-		return $item; 
+		return $item;
 	}
 	function items($table, $where = '1', $fields = '*', $field = false, $key = false){
 		$items = $this->query('select '.$fields.' from '.$table.' where '.$where)->rows($field, $key);
-		return $items; 
+		return $items;
 	}
-	
+
 	function rows($field = false, $key = false) {
 		$rows = array();
 		while($row = $this->row($field)) {
@@ -74,7 +74,7 @@ class db{
 		return $pid;
 	}
 	function cnt() {
-		return mysql_affected_rows($this->connect_id);
+		return mysqli_affected_rows($this->connect_id);
 	}
 	private function _arrayKeysToSet($values){
 		$ret='';
@@ -97,7 +97,7 @@ class db{
 		return $this->query('insert into '.$table.' set '.$ret);
 	}
 	function id(){
-		return mysql_insert_id($this->connect_id);
+		return mysqli_insert_id($this->connect_id);
 	}
 	public function update( $table, $values, $where=1 ){
 		$ret = $this->_arrayKeysToSet($values);
@@ -107,12 +107,12 @@ class db{
 		return $this->query('delete from '.$table.' where '.$where);
 	}
 	function _($value) {
-		return mysql_real_escape_string($value, $this->connect_id);
+		return mysqli_real_escape_string($value, $this->connect_id);
 	}
 	function __($value) {
 		return '"'.$this->_($value).'"';
 	}
-	
+
 	public function error(){
 		$langcharset = 'utf-8';
 		echo "<HTML>\n";

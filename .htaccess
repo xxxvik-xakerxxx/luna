@@ -7,14 +7,14 @@ php_value post_max_size 50M
 php_value display_errors 1
 
 
-DirectoryIndex main.php?controller=index
+DirectoryIndex index.php?controller=index
 
-ErrorDocument 404 /main.php?controller=error
+ErrorDocument 404 /index.php?controller=error
 
-RewriteRule ^index.html$ main.php
+RewriteRule ^index.html$ index.php
 
-RewriteCond %{REQUEST_FILENAME} !-f 
+RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
-RewriteRule ^(.*)$ main.php?route=$1 [L,QSA]
+RewriteRule ^(.*)$ index.php?route=$1 [L,QSA]
 
 
